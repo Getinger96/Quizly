@@ -7,8 +7,14 @@ from rest_framework.response import Response
 import whisper
 from rest_framework.permissions import  AllowAny
 from google import genai
+from google.genai.types import GenerateContentConfig
 
 
+config = GenerateContentConfig(
+    temperature=0,
+    top_p=1,
+    top_k=1
+)
 def my_hook(d):
     if d['status'] == 'finished':
         return d
@@ -80,11 +86,11 @@ Requirements:
 - DO NOT add code fences like ```json.
 - DO NOT change the key names.
 - DO NOT invent validation messages or reasoning. Only produce the JSON.
-           Transcript:
-             {transcript}"""     
+           """     
         response = client.models.generate_content(
-           model="gemini-2.5-flash", contents=prompt)
-        
+           model="gemini-2.5-flash", contents=prompt+transcript,
+            config=config
+        )
         
         raw_output = response.candidates[0].content.parts[0].text
         raw_output = raw_output.strip().strip("```").replace("json", "")
