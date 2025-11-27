@@ -35,6 +35,7 @@ class QuizCreateAPIView(generics.CreateAPIView):
         model = whisper.load_model("tiny")
         result = model.transcribe("media/audio.mp3")
         transcript=result["text"]
+        print(transcript)
         client = genai.Client()
         prompt=f"""Based on the following transcript, generate a quiz in valid JSON format.
 
@@ -84,9 +85,12 @@ Requirements:
         response = client.models.generate_content(
            model="gemini-2.5-flash", contents=prompt)
         
+        
         raw_output = response.candidates[0].content.parts[0].text
         raw_output = raw_output.strip().strip("```").replace("json", "")
         quiz_json = json.loads(raw_output)
+        print(quiz_json)
+
         
         serializer=self.get_serializer(data=quiz_json)
         serializer.is_valid(raise_exception=True)

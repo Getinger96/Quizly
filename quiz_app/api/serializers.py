@@ -1,9 +1,6 @@
 from rest_framework import serializers
 from ..models import Quiz,Question
 import json
-import yt_dlp
-import whisper
-
 
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
