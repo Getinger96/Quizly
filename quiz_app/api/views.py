@@ -7,6 +7,8 @@ from rest_framework.response import Response
 import whisper
 from rest_framework.permissions import  AllowAny
 from google import genai
+import uuid
+import os
 
 
 
@@ -23,9 +25,11 @@ class QuizCreateAPIView(generics.CreateAPIView):
     def post(self,request):
       
         URL=request.data.get('url')
+        unique_id = uuid.uuid4().hex
+        audio_path = f"media/audio_{unique_id}.mp3"
         ydl_opts = { "format": "bestaudio/best",
 
-    "outtmpl": 'media/audio.mp3',
+    "outtmpl": audio_path,
 
     'verbose': True,
 
@@ -36,7 +40,7 @@ class QuizCreateAPIView(generics.CreateAPIView):
           ydl.download(URL)
 
         model = whisper.load_model("tiny")
-        result = model.transcribe("media/audio.mp3")
+        result = model.transcribe(audio_path)
         transcript=result["text"]
         print(transcript)
         client = genai.Client()

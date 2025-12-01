@@ -41,6 +41,24 @@ class QuizCreateSerializer(serializers.ModelSerializer):
             'updated_at',
             'video_url',
             'questions']
+        
+
+    def validate_video_url(self, value):
+        if not value:
+            return value  # leer oder None ok
+
+        # Wenn Link schon youtube.com ist → nichts ändern
+        if "youtube.com/watch?v=" in value:
+            return value
+
+        # Wenn Link youtu.be ist → umwandeln
+        if "youtu.be/" in value:
+            # Video-ID extrahieren (alles nach youtu.be/)
+            video_id = value.split("/")[-1].split("?")[0]
+            return f"https://www.youtube.com/watch?v={video_id}"
+
+        # alles andere ablehnen
+        raise serializers.ValidationError("Nur YouTube URLs erlaubt")
 
     def create (self,validated_data):
         print(validated_data)
