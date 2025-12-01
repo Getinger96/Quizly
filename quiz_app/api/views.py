@@ -7,14 +7,10 @@ from rest_framework.response import Response
 import whisper
 from rest_framework.permissions import  AllowAny
 from google import genai
-from google.genai.types import GenerateContentConfig
 
 
-config = GenerateContentConfig(
-    temperature=0,
-    top_p=1,
-    top_k=1
-)
+
+
 def my_hook(d):
     if d['status'] == 'finished':
         return d
@@ -25,6 +21,7 @@ class QuizCreateAPIView(generics.CreateAPIView):
     permission_classes=[AllowAny]
 
     def post(self,request):
+      
         URL=request.data.get('url')
         ydl_opts = { "format": "bestaudio/best",
 
@@ -89,18 +86,26 @@ Requirements:
            """     
         response = client.models.generate_content(
            model="gemini-2.5-flash", contents=prompt+transcript,
-            config=config
+            
         )
         
-        raw_output = response.candidates[0].content.parts[0].text
-        raw_output = raw_output.strip().strip("```").replace("json", "")
+        raw_output = response.text.strip()
+        raw_output = (
+        raw_output.replace("```json", "")
+              .replace("```", "")
+              .strip())
         quiz_json = json.loads(raw_output)
-        print(quiz_json)
-
         
+        print(quiz_json["questions"])
+        
+
         serializer=self.get_serializer(data=quiz_json)
+        
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        
+       
+        serializer.save(video_url=URL,questions=quiz_json["questions"])
+
 
 
         return Response(serializer.data,status=status.HTTP_201_CREATED)
