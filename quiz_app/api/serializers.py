@@ -29,7 +29,9 @@ class QuizSerializer(serializers.ModelSerializer):
     
 
 class QuizCreateSerializer(serializers.ModelSerializer):
-    
+    video_url = serializers.URLField(
+        required=False, allow_null=True, allow_blank=True
+    )
     questions=QuestionSerializer(many=True,read_only=True)
 
 
@@ -65,6 +67,7 @@ class QuizCreateSerializer(serializers.ModelSerializer):
         questions_data= validated_data.pop('questions',[])
         print(validated_data)
         print(questions_data)
+        if validated_data["video_url"]:"youtu.be"
         quiz=Quiz.objects.create(**validated_data)
         for questions in questions_data:
             Question.objects.create(quiz=quiz,**questions)
