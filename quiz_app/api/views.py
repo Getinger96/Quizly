@@ -25,6 +25,7 @@ class QuizCreateAPIView(generics.CreateAPIView):
     def post(self,request):
       
         URL=request.data.get('url')
+        
         unique_id = uuid.uuid4().hex
         audio_path = f"media/audio_{unique_id}.mp3"
         ydl_opts = { "format": "bestaudio/best",
@@ -102,13 +103,13 @@ Requirements:
         
         print(quiz_json["questions"])
         
-
+        quiz_json["video_url"] = URL  
         serializer=self.get_serializer(data=quiz_json)
         
         serializer.is_valid(raise_exception=True)
         
        
-        serializer.save(video_url=URL,questions=quiz_json["questions"])
+        serializer.save(questions=quiz_json["questions"])
 
 
 
