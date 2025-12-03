@@ -11,24 +11,15 @@ import uuid
 import os
 
 
-
-
 def my_hook(d):
     if d['status'] == 'finished':
         return d
 
-class QuizCreateAPIView(generics.CreateAPIView):
-    serializer_class=QuizCreateSerializer
-    queryset=Quiz.objects.all()
-    permission_classes=[AllowAny]
-
-    def post(self,request):
-      
-        URL=request.data.get('url')
-        
-        unique_id = uuid.uuid4().hex
-        audio_path = f"media/audio_{unique_id}.mp3"
-        ydl_opts = { "format": "bestaudio/best",
+def video_donwload(self,request):
+ URL=request.data.get('url')
+ unique_id = uuid.uuid4().hex
+ audio_path = f"media/audio_{unique_id}.mp3"
+ ydl_opts = { "format": "bestaudio/best",
 
     "outtmpl": audio_path,
 
@@ -37,15 +28,18 @@ class QuizCreateAPIView(generics.CreateAPIView):
     "noplaylist": True,
     'progress_hooks': [my_hook],
     }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+ with yt_dlp.YoutubeDL(ydl_opts) as ydl:
           ydl.download(URL)
+ return audio_path,URL
 
-        model = whisper.load_model("tiny")
-        result = model.transcribe(audio_path)
-        transcript=result["text"]
-        print(transcript)
-        client = genai.Client()
-        prompt=f"""Based on the following transcript, generate a quiz in valid JSON format.
+def transcript_video(self,audio_path):
+ model = whisper.load_model("tiny")
+ result = model.transcribe(audio_path)
+ transcript=result["text"]
+ return transcript
+
+def build_prompt():
+    return f"""Based on the following transcript, generate a quiz in valid JSON format.
 
 The quiz must follow this exact structure:
 
@@ -89,29 +83,43 @@ Requirements:
 - DO NOT change the key names.
 - DO NOT invent validation messages or reasoning. Only produce the JSON.
            """     
-        response = client.models.generate_content(
-           model="gemini-2.5-flash", contents=prompt+transcript,
+
+
+def generate_quiz(self,transcript):
+   client = genai.Client()
+   prompt_text = build_prompt()
+   response = client.models.generate_content(
+           model="gemini-2.5-flash", contents=prompt_text+transcript,
             
         )
         
-        raw_output = response.text.strip()
-        raw_output = (
-        raw_output.replace("```json", "")
+   raw_output = response.text.strip()
+   raw_output = (
+   raw_output.replace("```json", "")
               .replace("```", "")
               .strip())
-        quiz_json = json.loads(raw_output)
-        
-        print(quiz_json["questions"])
-        
-        quiz_json["video_url"] = URL  
-        serializer=self.get_serializer(data=quiz_json)
-        
-        serializer.is_valid(raise_exception=True)
-        
-       
-        serializer.save(questions=quiz_json["questions"])
+   quiz_json = json.loads(raw_output)
+   return quiz_json
+    
 
+class QuizCreateAPIView(generics.CreateAPIView):
+    serializer_class=QuizCreateSerializer
+    queryset=Quiz.objects.all()
+    permission_classes=[AllowAny]
 
+    def post(self,request):
+      
+       video_donwload(self,request)
+       audio_path,URL=video_donwload(self,request)
+       transcript=transcript_video(self,audio_path)
+       quiz_json=generate_quiz(self,transcript)
 
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
+        
+        
+        
+       quiz_json["video_url"] = URL  
+       serializer=self.get_serializer(data=quiz_json)
+       serializer.is_valid(raise_exception=True)
+       serializer.save(questions=quiz_json["questions"])
+       return Response(serializer.data,status=status.HTTP_201_CREATED)
 
