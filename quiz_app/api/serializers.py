@@ -21,10 +21,10 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class QuizSerializer(serializers.ModelSerializer):
-    URL=serializers.URLField(required=False,allow_null=True)
+    questions=QuestionSerializer(many=True,read_only=True)
     class Meta:
         model=Quiz
-        fields='__all__'
+        fields=['id','title','description','created_at','updated_at','video_url','questions']
 
     
 
