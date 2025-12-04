@@ -1,5 +1,5 @@
 from rest_framework import generics,viewsets,filters,status
-from .serializers import QuizCreateSerializer
+from .serializers import QuizCreateSerializer,QuizSerializer
 from ..models  import Quiz
 import json
 import yt_dlp
@@ -9,7 +9,8 @@ from rest_framework.permissions import  AllowAny
 from google import genai
 import uuid
 import os
-
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from auth_app.api.permissions import IsCreator
 
 def my_hook(d):
     if d['status'] == 'finished':
@@ -120,6 +121,22 @@ class QuizCreateAPIView(generics.CreateAPIView):
        quiz_json["video_url"] = URL  
        serializer=self.get_serializer(data=quiz_json)
        serializer.is_valid(raise_exception=True)
-       serializer.save(questions=quiz_json["questions"])
+       serializer.save(questions=quiz_json["questions"],creator=self.request.user)
        return Response(serializer.data,status=status.HTTP_201_CREATED)
 
+
+class QuizListView(generics.ListAPIView):
+    
+    serializer_class=QuizSerializer
+    permission_classes=[IsAuthenticated,IsCreator]
+
+    def get_queryset(self):
+        return Quiz.objects.filter(creator=self.request.user)
+    
+
+
+
+class QuizDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class=QuizSerializer
+    queryset=Quiz.objects.all()
+    permission_classes=[IsAuthenticated,IsCreator]
