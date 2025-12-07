@@ -31,6 +31,7 @@ class RegistrationView(APIView):
 
 class CookieTokenObtainPairView(TokenObtainPairView):
     serializer_class=CustomTokenObtainPairSerializer
+    print(serializer_class)
     def post(self, request, *args, **kwargs):
         serializer=self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):

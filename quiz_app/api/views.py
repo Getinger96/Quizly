@@ -2,8 +2,7 @@ from rest_framework import generics,viewsets,filters,status
 from .serializers import QuizCreateSerializer,QuizSerializer
 from ..models  import Quiz
 from rest_framework.response import Response
-from rest_framework.permissions import  AllowAny
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from auth_app.api.permissions import IsCreator
 from .helper import video_donwload,transcript_video,generate_quiz
 
@@ -13,7 +12,7 @@ from .helper import video_donwload,transcript_video,generate_quiz
 class QuizCreateAPIView(generics.CreateAPIView):
     serializer_class=QuizCreateSerializer
     queryset=Quiz.objects.all()
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
 
     def post(self,request):
       
@@ -35,7 +34,7 @@ class QuizCreateAPIView(generics.CreateAPIView):
 class QuizListView(generics.ListAPIView):
     
     serializer_class=QuizSerializer
-    permission_classes=[IsAuthenticated,IsCreator]
+    permission_classes=[IsAuthenticated]
 
     def get_queryset(self):
         return Quiz.objects.filter(creator=self.request.user)
