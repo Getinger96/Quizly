@@ -69,13 +69,9 @@ class LogoutView(APIView):
     permission_classes=[IsAuthenticated]
     def post(self,request):
         refresh_token=request.COOKIES.get("refresh_token")
-        access_token=request.COOKIES.get("access_token")
         refresh_token=RefreshToken(refresh_token)
         refresh_token.blacklist()
-        access_token=AccessToken(access_token)
-        access_token.blacklist()
         response=Response()
-        response.delete_cookie("access_token")
         response.delete_cookie("refresh_token")
         response.data={"detail":"Logout successfully! All Tokens will be deleted. Refresh token is now invalid"}
         return response
