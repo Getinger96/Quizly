@@ -10,13 +10,22 @@ from rest_framework_simplejwt.views import (
 from rest_framework_simplejwt.tokens import RefreshToken , AccessToken
 
 class RegistrationView(APIView):
+    """
+    API view responsible for handling user registration.
+    Accepts username, email, password, and confirmed_password.
+    Returns 201 if the user is successfully created.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = RegistrationSerializer(data=request.data)
+         """
+        Handle POST request for creating a new user.
+        Validates the serializer and returns an appropriate response.
+        """
+         serializer = RegistrationSerializer(data=request.data)
 
-        data = {}
-        if serializer.is_valid():
+         data = {}
+         if serializer.is_valid():
             saved_account = serializer.save()
             data = {
                 'username': saved_account.username,
@@ -24,28 +33,41 @@ class RegistrationView(APIView):
                 'user_id': saved_account.pk
             }
             return Response({"detail":'User created successfully!'},status=status.HTTP_201_CREATED)
-        else:
+         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
 
 class CookieTokenObtainPairView(TokenObtainPairView):
+    """
+    Custom login view that issues JWT tokens and stores
+    both access and refresh tokens inside HTTP-only cookies.
+    """
     serializer_class=CustomTokenObtainPairSerializer
-    print(serializer_class)
     def post(self, request, *args, **kwargs):
-        serializer=self.get_serializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
+         """
+        Validate login credentials using the serializer.
+        If valid, return user info and set JWT tokens as cookies.
+        """
+         serializer=self.get_serializer(data=request.data)
+         if serializer.is_valid(raise_exception=True):
             data={
                 'id':serializer.user.id,
                 'username':serializer.user.username,
                 'email':serializer.user.email
             } 
-        refresh = serializer.validated_data["refresh"]
-        access= serializer.validated_data["access"]
+         refresh = serializer.validated_data["refresh"]
+         access= serializer.validated_data["access"]
         
-        response =Response({"detail":"Login succesfully!","user":data},status=status.HTTP_200_OK)
+         response =Response({"detail":"Login succesfully!","user":data},status=status.HTTP_200_OK)
 
-        response.set_cookie(
+         """
+        Set secure HttpOnly cookies containing JWT tokens.
+        These cookies cannot be accessed via JavaScript and 
+        are only sent automatically with requests.
+        """
+
+         response.set_cookie(
             key= "access_token",
             value= access,
             httponly=True,
@@ -53,7 +75,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             samesite="Lax"
         )
 
-        response.set_cookie(
+         response.set_cookie(
             key= "refresh_token",
             value= refresh,
             httponly=True,
@@ -62,12 +84,17 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 
         )
         
-        return response 
+         return response 
     
 
 class LogoutView(APIView):
-    permission_classes=[IsAuthenticated]
-    def post(self,request):
+     """
+    API view for logging out a user.
+    Deletes the refresh token by blacklisting it and
+    removes the cookie from the client.
+    """
+     permission_classes=[IsAuthenticated]
+     def post(self,request):
         refresh_token=request.COOKIES.get("refresh_token")
         refresh_token=RefreshToken(refresh_token)
         refresh_token.blacklist()
@@ -80,23 +107,35 @@ class LogoutView(APIView):
 
 class CookieRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
-        refresh_token=request.COOKIES.get("refresh_token")
-        if refresh_token is None:
+         """
+        Handle POST request to invalidate the refresh token.
+        Removes refresh_token cookie and blacklists the token.
+        """
+         refresh_token=request.COOKIES.get("refresh_token")
+         """
+        Convert the token into a RefreshToken object.
+        This allows the token to be blacklisted.
+        """
+         if refresh_token is None:
             return Response({"detail":"Refresh token not found!"},
                             status=status.HTTP_400_BAD_REQUEST)
-        serializer=self.get_serializer(data={"refresh":refresh_token})
-        try:
+         serializer=self.get_serializer(data={"refresh":refresh_token})
+         try:
             serializer.is_valid(raise_exception=True)
-        except:
-            return Response({"detail":"Refresh token invalid!"},
+         except:
+             return Response({"detail":"Refresh token invalid!"},
                             status=status.HTTP_401_UNAUTHORIZED)
-        access_token=serializer.validated_data.get("access")
-        response=Response({"detail":" Token refreshed",'access':access_token})
-        response.set_cookie(
+         access_token=serializer.validated_data.get("access")
+         response=Response({"detail":" Token refreshed",'access':access_token})
+         """
+        Save the new access token as an HttpOnly cookie.
+        This cookie replaces the old access token.
+        """
+         response.set_cookie(
             key= "access_token",
             value= access_token,
             httponly=True,
             secure=True,
             samesite="Lax"
         )
-        return response
+         return response
