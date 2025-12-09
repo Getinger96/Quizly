@@ -71,6 +71,34 @@ python manage.py runserver
 
 3. API will be available at `http://127.0.0.1:8000/`
 
+   ## 🌱 Environment Setup
+
+This project uses a `.env` file to store sensitive configuration values such as API keys.  
+The `.env` file is **not included in the repository** for security reasons.
+
+### Creating Your `.env` File
+
+Follow the steps below to set up your environment variables:
+
+1. Copy the `.env.example` file:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    (Alternatively, you can create the `.env` file manually.)
+
+2. Open the newly created `.env` file and add your API key:
+
+    ```env
+    GEMINI_API_KEY=your_api_key_here
+    ```
+
+3. Save the file and run the project as usual.
+
+All environment variables are automatically loaded using `python-dotenv`.
+
+
 # Endpoints
 
 ## Auth Endpoints
