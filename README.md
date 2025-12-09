@@ -18,6 +18,59 @@ Authentication is handled via **HttpOnly cookies** (`access_token`, `refresh_tok
 | access_token  | JWT used for authorized requests       |
 | refresh_token | Token used to refresh the access token |
 
+## Requirements & Setup
+
+### Prerequisites
+
+To run this project, you need the following installed:
+
+* Python 3.10+
+* pip (Python package manager)
+* virtualenv (recommended)
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone <repository_url>
+cd <repository_folder>
+```
+
+2. Create a virtual environment:
+
+```bash
+python -m venv venv
+source venv/bin/activate   # Linux / macOS
+venv\Scripts\activate      # Windows
+```
+
+3. Install required dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Environment Variables
+
+Make sure to configure environment variables for Django settings, database, and any AI service API keys (Gemini, Whisper, etc.).
+
+### Running the Project
+
+1. Apply migrations:
+
+```bash
+python manage.py migrate
+```
+
+2. Start the development server:
+
+```bash
+python manage.py runserver
+```
+
+3. API will be available at `http://127.0.0.1:8000/`
+
 # Endpoints
 
 ## Auth Endpoints
@@ -200,55 +253,4 @@ This API has **no rate limits**.
 
 ---
 
-## Requirements & Setup
 
-### Prerequisites
-
-To run this project, you need the following installed:
-
-* Python 3.10+
-* pip (Python package manager)
-* virtualenv (recommended)
-
-### Installation
-
-1. Clone the repository:
-
-```bash
-git clone <repository_url>
-cd <repository_folder>
-```
-
-2. Create a virtual environment:
-
-```bash
-python -m venv venv
-source venv/bin/activate   # Linux / macOS
-venv\Scripts\activate      # Windows
-```
-
-3. Install required dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-### Environment Variables
-
-Make sure to configure environment variables for Django settings, database, and any AI service API keys (Gemini, Whisper, etc.).
-
-### Running the Project
-
-1. Apply migrations:
-
-```bash
-python manage.py migrate
-```
-
-2. Start the development server:
-
-```bash
-python manage.py runserver
-```
-
-3. API will be available at `http://127.0.0.1:8000/`
