@@ -34,8 +34,8 @@ To run this project, you need the following installed:
 
 ```bash
 git clone <repository_url>
-cd <repository_folder>
 ```
+1.5 Open the folder on your ide
 
 2. Create a virtual environment:
 
