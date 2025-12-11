@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
-
 class RegistrationSerializer(serializers.ModelSerializer):
      """
     Serializer responsible for handling user registration.
@@ -12,7 +11,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
     email uniqueness and password match.
     """
      confirmed_password = serializers.CharField(write_only=True)
-
      class Meta:
         """
         Meta configuration specifying the model used (User)
@@ -55,15 +53,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         The password is hashed using Django's built-in set_password method.
         """
         pw = self.validated_data['password']
-
         account = User(email=self.validated_data['email'], username=self.validated_data['username'])
         account.set_password(pw)
         account.save()
         return account
     
-
-
-
 
 User=get_user_model()
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -73,8 +67,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """
     username=serializers.CharField()
     password=serializers.CharField(write_only=True)
-
-    
 
     def validate(self,attrs):
         """

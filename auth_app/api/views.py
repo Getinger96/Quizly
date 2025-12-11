@@ -23,7 +23,6 @@ class RegistrationView(APIView):
         Validates the serializer and returns an appropriate response.
         """
          serializer = RegistrationSerializer(data=request.data)
-
          data = {}
          if serializer.is_valid():
             saved_account = serializer.save()
@@ -36,8 +35,6 @@ class RegistrationView(APIView):
          else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-
-
 class CookieTokenObtainPairView(TokenObtainPairView):
     """
     Custom login view that issues JWT tokens and stores
@@ -50,15 +47,16 @@ class CookieTokenObtainPairView(TokenObtainPairView):
         If valid, return user info and set JWT tokens as cookies.
         """
          serializer=self.get_serializer(data=request.data)
-         if serializer.is_valid(raise_exception=True):
-            data={
-                'id':serializer.user.id,
-                'username':serializer.user.username,
-                'email':serializer.user.email
-            } 
+         if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+         
+         data={
+            'id':serializer.user.id,
+            'username':serializer.user.username,
+            'email':serializer.user.email
+         } 
          refresh = serializer.validated_data["refresh"]
          access= serializer.validated_data["access"]
-        
          response =Response({"detail":"Login succesfully!","user":data},status=status.HTTP_200_OK)
 
          """
@@ -81,12 +79,9 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             httponly=True,
             secure=True,
             samesite="Lax"
-
         )
-        
          return response 
     
-
 class LogoutView(APIView):
      """
     API view for logging out a user.
@@ -103,8 +98,6 @@ class LogoutView(APIView):
         response.data={"detail":"Logout successfully! All Tokens will be deleted. Refresh token is now invalid"}
         return response
     
-
-
 class CookieRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
          """

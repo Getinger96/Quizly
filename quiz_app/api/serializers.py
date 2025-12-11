@@ -8,7 +8,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     Handles validation of the answer field to ensure it matches
     one of the provided question options.
     """
-    
+
     class Meta:
         model=Question
         fields=['id','question_title','question_options','answer','created_at','updated_at']
@@ -38,8 +38,6 @@ class QuizSerializer(serializers.ModelSerializer):
         model=Quiz
         fields=['id','title','description','created_at','updated_at','video_url','questions']
 
-    
-
 class QuizCreateSerializer(serializers.ModelSerializer):
     """
     Serializer used for creating quizzes.
@@ -51,7 +49,6 @@ class QuizCreateSerializer(serializers.ModelSerializer):
     )
     questions=QuestionSerializer(many=True,read_only=True)
 
-
     class Meta:
         model=Quiz
         fields=['title',
@@ -61,7 +58,6 @@ class QuizCreateSerializer(serializers.ModelSerializer):
             'video_url',
             'questions']
         
-
     def validate_video_url(self, value):
         """
         Validates and normalizes YouTube URLs.
@@ -75,17 +71,14 @@ class QuizCreateSerializer(serializers.ModelSerializer):
         if not value:
             return value  
 
-        
         if "youtube.com/watch?v=" in value:
             return value
 
-        
         if "youtu.be/" in value:
             
             video_id = value.split("/")[-1].split("?")[0]
             return f"https://www.youtube.com/watch?v={video_id}"
 
-        
         raise serializers.ValidationError("Nur YouTube URLs erlaubt")
 
     def create (self,validated_data):

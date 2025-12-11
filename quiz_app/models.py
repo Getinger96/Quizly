@@ -29,8 +29,6 @@ class Quiz(models.Model):
         """
        return super().__str__() + self.title
  
-
-
 class Question(models.Model):
     """
     Model representing a single question within a quiz.
