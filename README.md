@@ -40,9 +40,9 @@ git clone <repository_url>
 2. Create a virtual environment:
 
 ```bash
-python -m venv venv
-source venv/bin/activate   # Linux / macOS
-venv\Scripts\activate      # Windows
+python -m venv env
+source env/bin/activate   # Linux / macOS
+env\Scripts\activate      # Windows
 ```
 
 3. Install required dependencies:
