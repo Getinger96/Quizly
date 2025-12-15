@@ -54,4 +54,4 @@ class Question(models.Model):
         Return a string representation of the Question.
         Appends the question title to the default string.
         """
-       return super().__str__() + self.title
+       return super().__str__() + self.question_title
