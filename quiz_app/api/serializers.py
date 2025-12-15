@@ -51,7 +51,7 @@ class QuizCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=Quiz
-        fields=['title',
+        fields=['id','title',
             'description',
             'created_at',
             'updated_at',
@@ -99,6 +99,7 @@ class QuizCreateSerializer(serializers.ModelSerializer):
             Question.objects.create(quiz=quiz,**questions)
             print(quiz)
          return quiz
+    
 
 
         
